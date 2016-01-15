@@ -6,6 +6,4 @@
 #各站粉丝数 模拟
 #粉丝网粉丝数
 
-cfdas=2
-lpy=54
-lpy=234
+conn <- dbConnect(MySQL(), dbname = "test",username="root", password="root",host="10.0.5.19",port=3306)

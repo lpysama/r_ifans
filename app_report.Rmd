@@ -1,0 +1,340 @@
+---
+title: "粉丝网app数据报告"
+author: "数据部"
+date: '`r  Sys.Date()-1`'
+output: 
+  html_document: 
+    self_contained: no
+---
+```{r include=FALSE}
+library(RMySQL)
+library(reshape)
+yesterday=Sys.Date()-1
+iOS.id='984000de8c5c89df24f7d155'
+Andriod.id='8ea000eac15c89dfacd8d155'
+#conn <- dbConnect(MySQL(), dbname = "test", username="root", #password="1234",host="localhost",port=3306)
+conn <- dbConnect(MySQL(), dbname = "test", username="root", password="root",host="10.0.5.19",port=3306)
+ss0 = sprintf("SELECT * FROM app_ranking where date>\"%s\" ",as.Date(yesterday-7))
+datax0= dbGetQuery(conn,ss0)
+
+
+ss = sprintf("SELECT * FROM umeng_app_zts where date>\"%s\" and (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-7))
+datax= dbGetQuery(conn,ss)
+ss2.2 = sprintf("SELECT * FROM umeng_app_zts where date>\"%s\" and (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-30))
+datax2.2= dbGetQuery(conn,ss2.2)
+ss2.3 = sprintf("SELECT * FROM umeng_app_zts where date>\"%s\" and (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-37))
+datax2.3= dbGetQuery(conn,ss2.3)
+datax$name=''
+datax[which(datax$app_id==iOS.id),]$name='iOS'
+datax[which(datax$app_id==Andriod.id),]$name='Andriod'
+ss4= sprintf("SELECT * FROM umeng_app_yhgc where date>\"%s\" and (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-7))
+ss2 = sprintf("SELECT * FROM umeng_app_zts where date>\"%s\" and (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-30))
+datax2= dbGetQuery(conn,ss2)
+datax4= dbGetQuery(conn,ss4)
+datax4$name=''
+datax4[which(datax4$app_id==iOS.id),]$name='iOS'
+datax4[which(datax4$app_id==Andriod.id),]$name='Andriod'
+datax4=cast(melt(datax4,id=(c('date','name'))),date~variable+name)
+
+ss6=sprintf("SELECT * FROM umeng_app_qd where date=\"%s\" and  app_id='8ea000eac15c89dfacd8d155'",as.Date(yesterday))
+datax6=dbGetQuery(conn,ss6)
+#
+ss8=sprintf("SELECT * FROM umeng_app_hour where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
+datax8=dbGetQuery(conn,ss8)
+datax8$name=''
+datax8[which(datax8$app_id==iOS.id),]$name='iOS'
+datax8[which(datax8$app_id==Andriod.id),]$name='Andriod'
+#
+ss9=sprintf("SELECT * FROM umeng_app_yhrsy where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
+datax9=dbGetQuery(conn,ss9)
+datax9$name=''
+datax9[which(datax9$app_id==iOS.id),]$name='iOS'
+datax9[which(datax9$app_id==Andriod.id),]$name='Andriod'
+#
+ss10=sprintf("SELECT * FROM umeng_app_r_sypl where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
+datax10=dbGetQuery(conn,ss10)
+datax10$name=''
+datax10[which(datax10$app_id==iOS.id),]$name='iOS'
+datax10[which(datax10$app_id==Andriod.id),]$name='Andriod'
+#
+ss11=sprintf("SELECT * FROM umeng_app_lcyh where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
+datax11=dbGetQuery(conn,ss11)
+datax11$name=''
+datax11[which(datax11$app_id==iOS.id),]$name='iOS'
+datax11[which(datax11$app_id==Andriod.id),]$name='Andriod'
+#13
+ss13=sprintf("SELECT * FROM umeng_app_lcl where date>\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-30))
+datax13=dbGetQuery(conn,ss13)
+datax13$name=''
+datax13[which(datax13$app_id==iOS.id),]$name='iOS'
+datax13[which(datax13$app_id==Andriod.id),]$name='Andriod'
+
+dbDisconnect(conn)
+#1
+data1=datax[which(datax$date==yesterday),]
+#2
+
+xxx=melt(datax,id=(c('date','name')))
+datax=cast(xxx,date~variable+name)
+
+```
+#<font size=4.5>1.app积累用户的各平台人数与占比</font>
+
+<font size=2.5>至昨日总累计用户 ：<font color="red">`r  data1$lj_yh[2]+data1$lj_yh[1]`</font>人<br>
+```{r echo=FALSE}
+#
+lbls=c("andriod","iOS")
+pct <- round(data1$lj_yh/sum(data1$lj_yh)*100)
+lbls <- paste(data1$name, pct) 
+lbls <- paste(lbls,"%",sep="")
+pie(data1$lj_yh,col=c("#5B9BD5","#ED7D31"),clockwise = T, radius = 0.8,edges = 200,labels = lbls)
+title(main = "总累计用户")
+text(0.26,0.3,paste(data1$lj_yh[1],"人"))
+text(-0.28,-0.3,paste(data1$lj_yh[2],"人"))
+box()
+
+
+```
+<br>
+
+#<font size=4.5>2.近7日iOS平台中国娱乐分类内下载排名(无排名则不上榜、无数据)</font><br>
+```{r,echo=FALSE}
+datax01=datax0[which(datax0$app=='粉丝焦点'),]
+plot(1:7,datax01$rank,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax01$rank,na.rm = T)%/%100*100+100,min(datax01$rank,na.rm = T)%/%100*100-100))
+axis(1,at=1:7,labels = c(format(as.Date(datax01$date), "%m/%d")))
+axis(2,at=seq(max(datax01$rank,na.rm = T)%/%100*100+100,min(datax01$rank,na.rm = T)%/%100*100-100,-100),las=2)
+text(1:7,datax01$rank,datax01$rank,pos = 3)
+```
+<br>
+
+<font size=4.5>近7日iOS平台中国娱乐分类内畅销排名(无排名则不上榜、无数据)</font><br>
+```{r,echo=FALSE}
+datax02=datax0[which(datax0$app=='粉丝网畅销'),]
+plot(1:7,datax02$rank,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax02$rank,na.rm = T)%/%10*10+10,min(datax02$rank,na.rm = T)%/%10*10-10))
+axis(1,at=1:7,labels = c(format(as.Date(datax02$date), "%m/%d")))
+axis(2,at=seq(max(datax02$rank,na.rm = T)%/%10*10+10,min(datax02$rank,na.rm = T)%/%10*10-10,-20),las=2)
+text(1:7,datax02$rank,datax02$rank,pos = 3)
+```
+
+
+#<font size=4.5>3.最近一周内积累（总新增）用户：<font color="red">`r  sum(datax2[which(datax2$date>yesterday-7),]$xz_yh)`</font>人<br>
+<font size=4.5>最近一个月内积累（总新增）用户：<font color="red">`r 
+sum(datax13[which(datax13$date>yesterday-30 & datax13$date<=yesterday-7),]$xz_yh)+sum(datax2[which(datax2$date>yesterday-7),]$xz_yh)`</font>人<br>
+<font size=4.5>最近一周环比增长：<font color="red">`r 
+round((sum(datax2.2[which(datax2.2$date>yesterday-7),]$xz_yh)-(sum(datax2.2[which(datax2.2$date>yesterday-14),]$xz_yh)-sum(datax2.2[which(datax2.2$date>yesterday-7),]$xz_yh)))/(sum(datax2.2[which(datax2.2$date>yesterday-14),]$xz_yh)-sum(datax2.2[which(datax2.2$date>yesterday-7),]$xz_yh))*100,digit=2)`</font>%<br>
+<font size=4.5>最近一周同比增长(相对于一个月前)：<font color="red">`r 
+round((sum(datax2.2[which(datax2.2$date>yesterday-7),]$xz_yh)-(sum(datax2.3[which(datax2.3$date>yesterday-37 &datax2.3$date<=yesterday-30),]$xz_yh)))/(sum(datax2.3[which(datax2.3$date>yesterday-37 &datax2.3$date<=yesterday-30),]$xz_yh))*100,digit=2)`</font>%<br>
+
+```{r,echo=F}
+datax2.2=as.data.frame(tapply(datax2.2$xz_yh,datax2.2$date,sum))
+ plot(1:nrow(datax2.2),datax2.2$`tapply(datax2.2$xz_yh, datax2.2$date, sum)`,type = "l",axes = F,col="#5B9BD5",ylim = c(-max(datax2.2)*0.33,max(datax2.2)*1.2),ylab = "人数",xlab = "")
+ axis(1,at=1:nrow(datax2.2),labels = F,pos = -5)
+ axis(2,at=seq(0,max(datax2.2)*1.2,500),cex.axis=0.8,las=2)
+ text(labels= c(format(as.Date(rownames(datax2.2)), "%m/%d")),x=1:nrow(datax2.2),y=-max(datax2.2)*0.12,srt=65,cex = 0.6)
+ text(nrow(datax2.2)/2,-max(datax2.2)*0.28,labels = "日期")
+  abline(h=c(seq(0,max(datax2.2)*1.2,500)),lty=15,lwd=0.1)
+mark22=order(datax2.2$`tapply(datax2.2$xz_yh, datax2.2$date, sum)`,decreasing = T)[1:4]
+text(x=mark22,y=datax2.2$`tapply(datax2.2$xz_yh, datax2.2$date, sum)`[mark22],labels = datax2.2$`tapply(datax2.2$xz_yh, datax2.2$date, sum)`[mark22],pos = 3,cex = 0.8)
+```
+
+#<font size=4.5>4.最近七日新增用户（Andriod与iOS平台）</font><br>
+```{r,echo=FALSE}
+new_user=data.frame(as.numeric(as.character(datax$xz_yh_Andriod)),as.numeric(as.character(datax$xz_yh_iOS)),row.names = c(format(as.Date(datax$date), "%m/%d")))
+xx=barplot(t(new_user),beside = T,col = c("#5B9BD5","#ED7D31"),legend.text = c("Andriod","iOS"),ylim = c(0,max(new_user)*1.5),xlab = "日期",ylab = "人数")
+text(labels=new_user[,1],x=xx[1,],y=new_user[,1],pos = 3)
+text(labels=new_user[,2],x=xx[2,],y=new_user[,2],pos = 3)
+```
+<br>
+
+#<font size=4.5>5.最近七日活跃用户</font><br>
+```{r, echo=FALSE}
+active_user=data.frame(as.numeric(as.character(datax$hy_yh_Andriod)),as.numeric(as.character(datax$hy_yh_iOS)),row.names = c(format(as.Date(datax$date), "%m/%d")))
+
+xx2=barplot(t(active_user),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(active_user)*1.7),xlab = "日期",ylab = "人数",space = 1,cex.axis=0.8)
+text(labels=active_user[,1],x=xx2,y=active_user[,1]/2)
+text(labels=active_user[,2],x=xx2,y=active_user[,1]+active_user[,2]-active_user[,2]*0.5)
+text(labels=paste("总:",active_user[,2]+active_user[,1]),x=xx2,y=(active_user[,1]+active_user[,2]),pos=3)
+legend(2.8,max(active_user)*1.4,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","ios"),pch = 22,pt.cex = 2)
+```
+<br>
+
+#<font size=4.5>6.活跃用户构成</font><br>
+```{r, echo=FALSE}
+active_user_old=as.numeric(as.character( datax4$l_yh_Andriod))+as.numeric(as.character(datax4$l_yh_iOS))#????????????????
+active_user_new=as.numeric(as.character(datax4$x_yh_Andriod))+as.numeric(as.character(datax4$x_yh_iOS)) 
+active_user2=data.frame(as.numeric(as.character(active_user_old)),as.numeric(as.character(active_user_new)),row.names = c(format(as.Date(datax4$date), "%m/%d")))
+
+xx2=barplot(t(active_user2),col = c("#5B9BD5","#ED7D31"),legend.text = c("老用户","新增用户"),ylim = c(0,max(active_user_old)+max(active_user_new))*1.3,xlab = "日期",ylab = "人数",space=1,cex.axis=0.8)
+text(labels=active_user2[,1],x=xx2,y=active_user2[,1]/2)
+text(labels=active_user2[,2],x=xx2,y=active_user2[,1]+active_user2[,2]*0.5)
+text(labels=paste("总:",active_user2[,2]+active_user2[,1]),x=xx2,y=(active_user2[,1]+active_user2[,2]),pos=3)
+```
+<br>
+
+#<font size=4.5>7.活跃用户比例(活跃用户/总累计用户)</font><br>
+```{r, echo=FALSE}
+active_andriod=as.numeric(as.character(datax$hy_yh_Andriod))
+active_iOS=as.numeric(as.character(datax$hy_yh_iOS))
+total_user_andriod=as.numeric(as.character(datax$lj_yh_Andriod))
+total_user_iOS=as.numeric(as.character(datax$lj_yh_iOS))
+rate_andriod=round(active_andriod/total_user_andriod*100,digits = 2)
+rate_iOS=round(active_iOS/total_user_iOS*100,digits = 2)
+nn=c(format(as.Date(datax$date), "%m/%d"))
+height=round(max(max(rate_iOS),max(rate_andriod))*1.3)
+plot(1:7,rate_iOS,type = "b",ylim=c(0,max(rate_andriod,rate_iOS)*1.3),pch=17,lty=1,col="#ED7D31",lwd=2,cex=1.5,axes = F,xlab = "日期",ylab = "活跃率")
+axis(1,at=1:7,labels = nn)
+axis(2,at=seq(0,height,1),labels = paste(seq(0,height,1),"%"),cex.axis=0.9)
+lines(1:7,rate_andriod,type = "b",pch=15,lty=2,col="#5B9BD5",lwd=2,cex=1.5)
+ text(1:7,rate_iOS,labels = paste0(rate_iOS,"%"),pos=1,cex = 0.9,)
+ text(1:7,rate_andriod,labels = paste0(rate_andriod,"%"),pos=3,cex = 0.9)
+ legend(1.5,min(rate_andriod,rate_iOS)+2,c("Andriod","iOS"),pch = c(15,17),col = c("#5B9BD5","#ED7D31"))
+ 
+```
+
+#<font size=4.5>8.渠道活跃用户-Andriod</font><br>
+```{r echo=FALSE}
+ datax6=datax6[c("name","xz_yh","hy_yh","lj_yh")]
+ datax6.1=datax6[which(datax6$hy_yh>0),]
+ datax6.1$l_yh=datax6.1$hy_yh-datax6.1$xz_yh
+ if(dim(datax6.1)[1]>10)
+   datax6.1=datax6.1[which(datax6.1$hy_yh>5),]
+name6.1=datax6.1$name
+datax6.1=data.frame(datax6.1$xz_yh,datax6.1$l_yh)
+xx6=barplot(t(datax6.1),col = c("#5B9BD5","#ED7D31"),ylim = c(-max(datax6.1)*0.34,max(datax6.1)*1.3),ylab = "数量",beside = T,cex.names = 0.7,axes = F)
+text(labels=datax6.1[,1],x=xx6[1,],y=datax6.1[,1]+max(datax6.1)*0.05,cex = 0.8)
+text(labels=datax6.1[,2],x=xx6[2,],y=datax6.1[,2]+max(datax6.1)*0.05,cex = 0.8)
+legend(8,max(datax6.1)*1,pt.bg=c("#5B9BD5","#ED7D31"),c("新用户","老用户"),pch = 22,pt.cex = 2)
+text(labels=name6.1,x=(xx6[2,]+xx6[1,])/2,y=-max(datax6.1)*0.17,srt=65,cex = 0.8)
+axis(2,at=seq(0,max(datax6.1)*1.3,50),labels =seq(0,max(datax6.1)*1.3,50) ,cex.axis=0.8,las=2)
+```
+
+#<font size=4.5>9.渠道累计用户和活跃率-Andriod平台</font><br>
+```{r echo=FALSE}
+datax7=data.frame(datax6[c("name","hy_yh","lj_yh")],row.names = datax6$name)
+datax7=datax7[which(datax7$lj_yh>30),]
+xx7=barplot(as.vector(t(datax7$lj_yh)),col = "#5B9BD5",ylim = c(-1800,max(datax7$lj_yh)*1.4),ylab = "人数",cex.names = 0.6,space = 1.7,axes=F)
+axis(2,at=seq(0,max(datax7$lj_yh)*1.7,1000),labels = seq(0,max(datax7$lj_yh)*1.7,1000),las=2,cex.axis=0.8 )
+text(labels=datax7$lj_yh,x=xx7[,1],y=datax7$lj_yh+max(datax7$lj_yh)*0.1)
+datax7.1=round(datax7$hy_yh/datax7$lj_yh*100,digits = 2)
+
+lines(xx7[,1],datax7.1*100+4000,type = "b",col="#ED7D31",lwd=2,cex=1,pch=15)
+text(xx7[,1],(datax7.1*100+4000),labels = paste(datax7.1,"%"),pos=3,cex = 0.7)
+axis(side = 4,at=seq(4000,7000,1000),labels =paste((seq(4000,7000,1000)-4000)/100,"%"),cex.axis=0.7 ,las=2)
+ text(labels=datax7$name,x=xx7-0.4,y=-900,srt=65,cex = 0.7,srt=65)
+
+```
+
+#<font size=4.5>10.启动次数分布（按每小时分布）</font><br>
+```{r echo=FALSE}
+cishu_iOS=datax8[which(datax8$name=="iOS"),]$qd_cs
+cishu_iOS_t=datax8[which(datax8$name=="iOS"),]$sj
+cishu_andriod=datax8[which(datax8$name=="Andriod"),]$qd_cs
+cishu_andriod_t=datax8[which(datax8$name=="Andriod"),]$sj
+
+plot(cishu_iOS_t,cishu_iOS,type = "b",ylim=c(-5,max(cishu_iOS,cishu_andriod)*1.2),pch=17,lty=1,col="#ED7D31",lwd=2,cex=1,xlab = "时段",ylab = "次数",axes=F)
+lines(cishu_andriod_t,cishu_andriod,type = "b",pch=15,lty=2,col="#5B9BD5",lwd=2,cex=1)
+ #text(cishu_iOS_t,cishu_iOS,labels = cishu_iOS,pos=1,cex = 0.8)
+ #text(cishu_andriod_t,cishu_andriod,labels = cishu_andriod,pos=3,cex = 0.8)
+ legend(1.5,max(cishu_iOS,cishu_andriod),c("Andriod","iOS"),pch = c(15,17),col = c("#5B9BD5","#ED7D31"))
+ axis(side = 1,at=(0:24)-0.5,labels =0:24,cex.axis=0.73)
+ axis(side=2,at=seq(0,max(max(cishu_iOS,cishu_andriod))+100,by=200),labels =seq(0,max(max(cishu_iOS,cishu_andriod))+100,by=200),cex.axis=0.85,las=2)
+ abline(h=c(seq(0,max(max(cishu_iOS,cishu_andriod))+100,200)),lty=15,lwd=0.1)
+```
+
+#<font size=4.5>11.访问时长（按时间时长）</font><br>
+```{r echo=FALSE}
+chichang_iOS=datax9[which(datax9$name=="iOS"),]$yh_s
+chichang_iOS_t=datax9[which(datax9$name=="iOS"),]$key_name
+chichang_andriod=datax9[which(datax9$name=="Andriod"),]$yh_s
+chichang_andriod_t=datax9[which(datax9$name=="Andriod"),]$key_name
+ plot(1:8,chichang_iOS,type = "b",ylim=c(0,max(chichang_iOS,chichang_andriod)*1.3),pch=17,lty=1,col="#ED7D31",lwd=2,cex=1.5,xlab = "时间分布",ylab = "人数",axes = F)
+ box()
+axis(side = 1,at=1:8,labels =chichang_iOS_t ,cex.axis=0.9)
+ axis(side=2,at=seq(0,max(chichang_iOS,chichang_andriod)+50,by=50),labels =seq(0,max(chichang_iOS,chichang_andriod)+50,by=50),cex.axis=0.76)
+ lines(1:8,chichang_andriod,type = "b",pch=15,lty=2,col="#5B9BD5",lwd=2,cex=1.5)
+ text(1:8,chichang_iOS,labels = chichang_iOS,pos=1,cex = 0.8)
+ text(1:8,chichang_andriod,labels = chichang_andriod,pos=3,,cex = 0.8)
+ legend(1.5,max(chichang_iOS,chichang_andriod),c("Andriod","iOS"),pch = c(15,17),col = c("#5B9BD5","#ED7D31"))
+ 
+ 
+```
+
+#<font size=4.5>12.日启动次数分布</font><br>
+```{r echo=FALSE}
+xx10=barplot(t(data.frame(datax10[which(datax10$name=="Andriod"),]$yh_s,datax10[which(datax10$name=="iOS"),]$yh_s,row.names = datax10$key_name[1:6])),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(datax10$yh_s)*1.5),ylab = "人数",xlab = "次数",cex.names = 0.9,space = 1)
+ 
+legend(8,max(datax10$yh_s)*1.4,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","iOS"),pch = 22,pt.cex = 2)
+label1=datax10[which(datax10$name=="Andriod"),]$yh_s
+label1[label1==0]=""
+text(xx10,datax10[which(datax10$name=="Andriod"),]$yh_s/2,labels =label1,cex = 0.8)
+label2=datax10[which(datax10$name=="iOS"),]$yh_s
+label2[label2==0]=""
+text(xx10,datax10[which(datax10$name=="iOS"),]$yh_s/2+datax10[which(datax10$name=="Andriod"),]$yh_s,labels = label2,cex = 0.8)
+
+text(labels=paste("总:",datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[which(datax10$name=="iOS"),]$yh_s),x=xx2,y=(datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[which(datax10$name=="iOS"),]$yh_s),pos=3,cex = 0.9)
+```
+
+#<font size=4.5>13.iOS-15天活跃用户成分</font><br>
+```{r echo=FALSE}
+Andriod_15=datax11[which(datax11$name=="Andriod"),][4:18]
+iOS_15=datax11[which(datax11$name=="iOS"),][4:18]
+xx11=barplot(t(t(iOS_15)),col = "#5B9BD5",xlim = c(-60,max(iOS_15)*1.2),xlab = "人数",horiz = T,axisnames = F)
+axis(2,xx11,labels = paste("活跃",1:15,"天用户",sep = ""),las=2,cex.axis=0.7,pos=-1)
+text(iOS_15,xx11,labels = iOS_15,pos = 4)
+total=sum(iOS_15)
+rate=round(sum(iOS_15)/data1[which(data1$name=="iOS"),]$lj_yh,digits = 4)*100
+
+text(max(iOS_15)*0.7,15,labels = paste("15天内活跃用户:",total,"\n","15活跃用户占总安装人数比例 :",rate,"%",sep=''),col='red',cex=1.4)
+
+
+```
+
+#<font size=4.5>14.Andriod-15天活跃用户成分</font><br>
+```{r echo=FALSE}
+xx12=barplot(t(t(Andriod_15)),col = "#5B9BD5",xlim = c(-150,max(Andriod_15)*1.4),xlab = "人数",horiz = T,axisnames = F)
+axis(2,xx12,labels = paste("活跃",1:15,"天用户",sep = ""),las=2,cex.axis=0.7,pos=-1)
+text(Andriod_15,xx11,labels = Andriod_15,pos = 4)
+total2=sum(Andriod_15)
+rate2=round(sum(Andriod_15)/data1[which(data1$name=="Andriod"),]$lj_yh,digits = 4)*100
+
+text(max(Andriod_15)*0.65,15,labels = paste("15天内活跃用户:",total2,"\n","15活跃用户占总安装人数比例 :",rate2,"%",sep=''),col='red',cex=1.4)
+```
+
+#<font size=4.5>15.次日留存</font><br>
+#<font size=4>解释：条形图中的数字是当日新增用户，上面的百分比为到第二天留存的比例，7日留存和14日留存类似</font><br>
+```{r echo=FALSE}
+datax13.1=datax13[which(datax13$date>yesterday-8),]
+table13.1=data.frame(datax13.1[which(datax13.1$name=="Andriod"),]$lc_1,datax13.1[which(datax13.1$name=="iOS"),]$lc_1,row.names = format(as.Date(datax13.1[which(datax13.1$name=="Andriod"),]$date),"%m/%d" ))
+xx13.1=barplot(t(table13.1),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(table13.1)*1.4),ylab = "比率",xlab = "日期",cex.names = 0.9,beside = T,axes = F,legend.text = c("Andriod","iOS"),space = c(0.2,1))
+axis(2,seq(0,70,by=10),labels = paste(seq(0,70,by=10),"%",sep = ""),las=2)
+text(xx13.1[1,],table13.1[,1],labels = paste(table13.1[,1],"%",sep=""),pos = 3,cex = 0.7,offset = 0.5)
+text(xx13.1[2,],table13.1[,2],labels = paste(table13.1[,2],"%",sep=""),pos = 3,cex = 0.7,offset = 0.8)
+
+text(xx13.1[2,],table13.1[,2]/2+0.9,labels = datax13.1[which(datax13.1$name=="iOS"),]$xz_yh,cex = 0.7)
+text(xx13.1[1,],table13.1[,1]/2+0.9,labels = datax13.1[which(datax13.1$name=="Andriod"),]$xz_yh,cex = 0.7)
+
+```
+
+#<font size=4.5>16.7日后留存</font><br>
+```{r echo=FALSE}
+datax13.2=datax13[which((datax13$date<=yesterday-7) & (datax13$date>=yesterday-13 )),]
+table13.2=data.frame(datax13.2[which(datax13.2$name=="Andriod"),]$lc_7,datax13.2[which(datax13.2$name=="iOS"),]$lc_7,row.names = format(as.Date(datax13.2[which(datax13.2$name=="Andriod"),]$date),"%m/%d" ))
+xx13.2=barplot(t(table13.2),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(table13.2)*1.4),ylab = "比率",xlab = "日期",cex.names = 0.9,beside = T,axes = F,legend.text = c("Andriod","iOS"),space = c(0.2,1))
+axis(2,seq(0,30,by=5),labels = paste(seq(0,30,by=5),"%",sep = ""))
+text(xx13.2[1,],table13.2[,1],labels = paste(table13.2[,1],"%",sep=""),pos = 3,cex = 0.7,offset = 0.5)
+text(xx13.2[2,],table13.2[,2],labels = paste(table13.2[,2],"%",sep=""),pos = 3,cex = 0.7,offset = 0.5)
+text(xx13.2[2,],table13.2[,2]/2+0.3,labels = datax13.2[which(datax13.2$name=="iOS"),]$xz_yh,cex = 0.7)
+text(xx13.2[1,],table13.2[,1]/2+0.3,labels = datax13.2[which(datax13.2$name=="Andriod"),]$xz_yh ,cex = 0.7)
+```
+
+#<font size=4.5>17.14日后留存</font><br>
+```{r echo=FALSE}
+datax13.3=datax13[which((datax13$date<=yesterday-14) & (datax13$date>=yesterday-20 )),]
+table13.3=data.frame(datax13.3[which(datax13.3$name=="Andriod"),]$lc_8,datax13.3[which(datax13.3$name=="iOS"),]$lc_8,row.names = format(as.Date(datax13.3[which(datax13.3$name=="Andriod"),]$date),"%m/%d" ))
+xx13.3=barplot(t(table13.3),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(table13.3)*1.4),ylab = "比率",xlab = "日期",cex.names = 0.9,beside = T,axes = F,legend.text = c("Andriod","iOS"),space = c(0.2,1))
+axis(2,seq(0,30,by=5),labels = paste(seq(0,30,by=5),"%",sep = ""))
+text(xx13.3[1,],table13.3[,1],labels = paste(table13.3[,1],"%",sep=""),pos = 3,cex = 0.7,offset = 0.7)
+text(xx13.3[2,],table13.3[,2],labels = paste(table13.3[,2],"%",sep=""),pos = 3,cex = 0.7,offset = 0.7)
+text(xx13.3[2,],table13.3[,2]/2+0.2,labels = datax13.3[which(datax13.3$name=="iOS"),]$xz_yh,cex = 0.7)
+text(xx13.3[1,],table13.3[,1]/2+0.2,labels = datax13.3[which(datax13.3$name=="Andriod"),]$xz_yh ,cex = 0.7)
+```
