@@ -187,7 +187,7 @@ axis(2,at=seq(0,height,1),labels = paste(seq(0,height,1),"%"),cex.axis=0.9)
 lines(1:7,rate_andriod,type = "b",pch=15,lty=2,col="#5B9BD5",lwd=2,cex=1.5)
  text(1:7,rate_iOS,labels = paste0(rate_iOS,"%"),pos=1,cex = 0.9,)
  text(1:7,rate_andriod,labels = paste0(rate_andriod,"%"),pos=3,cex = 0.9)
- legend(1.5,min(rate_andriod,rate_iOS)+2,c("Andriod","iOS"),pch = c(15,17),col = c("#5B9BD5","#ED7D31"))
+ legend(1,min(rate_andriod,rate_iOS),c("Andriod","iOS"),pch = c(15,17),col = c("#5B9BD5","#ED7D31"))
  
 ```
 
