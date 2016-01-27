@@ -42,8 +42,9 @@ wb_zs_sex=ddply(wb_zs_sex,.(name=wb_zs_sex$name),colwise(mean))
 
 
 ##微博年龄
-ss5=sprintf("SELECT * FROM wb_sx_sex WHERE sdate=where  sdate <= '%s' AND sdate>='%s'",sdate-1,sdate-7) 
+ss5=sprintf("SELECT * FROM wb_sx_age WHERE   sdate <= '%s' AND sdate>='%s'",sdate-1,sdate-7) 
 wb_zs_age=dbGetQuery(conn,ss5)
+
 
 #微博指数与百度指数
 

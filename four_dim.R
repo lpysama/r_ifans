@@ -1,7 +1,7 @@
 library(RMySQL)
 library(xlsx)
 sdate=Sys.Date()-1
-sdate=as.Date("2016-01-14")
+sdate=as.Date("2016-01-18")
 conn <- dbConnect(MySQL(), dbname = "test",username="root", password="root",host="10.0.5.19",port=3306)
 ss =sprintf("select *  from star_rank_tieba where  date <= \"%s\" AND date>=\"%s\" ",sdate-1,sdate-7)
 #部落与真实姓名对比
@@ -122,3 +122,7 @@ dataxx=star.list3[order(star.list3$活跃度,decreasing = T),][1:500,]
 write.xlsx(dataxx,filename,sheetName="活跃度",append=T,row.names = F)
 dataxx=star.list3[order(star.list3$壕值,decreasing = T),][1:500,]
 write.xlsx(dataxx,filename,sheetName="壕值",append=T,row.names = F)
+
+
+
+
