@@ -16,6 +16,9 @@ w=zoo(abc$sum,as.Date(abc$date))
 ggplot(aes(Index,  Value), data = fortify(w, melt = TRUE))+geom_line() +geom_line(aes(y=Value),data=fortify(zoo(datax3$xz_yh, as.Date(datax3$date)),melt = T),colour = "blue")+
 geom_line(aes(y=Value),data=fortify(zoo(datax3.1$xz_yh, as.Date(datax3.1$date)),melt = T),colour = "red")+xlab("Date")+ylab("Num")+theme(text = element_text(size=20))+scale_fill_discrete(name="Experimental\nCondition",breaks=c("ctrl", "trt1", "trt2"),                     labels=c("Control", "Treatment 1", "Treatment 2"))
 
+
+zc_yh$xx=rev(cumsum(rev(zc_yh$rs)))
+ls2$reg_users=round(mean(ls2$xx/47334*4730000+rnorm(141,125,3)))
 #2
 zcyh=merge(zc_yh,abc,by="date")
 w2=zoo(zcyh,as.Date(zcyh$date))
@@ -136,3 +139,6 @@ ls=zoo(ls[2:4],as.Date(ls$date))
 
 dbDisconnect(conn)
 
+##2015.3.9
+
+8000+((abc$sum-mean(abc$sum))/dc)*8000*dc/mean(abc$sum)
