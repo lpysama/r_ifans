@@ -92,8 +92,8 @@ lbls <- paste(data1$name, pct)
 lbls <- paste(lbls,"%",sep="")
 pie(data1$lj_yh,col=c("#5B9BD5","#ED7D31"),clockwise = T, radius = 0.8,edges = 200,labels = lbls)
 title(main = "总累计用户")
-text(0.26,-0.3,paste(data1$lj_yh[1],"人"))
-text(-0.28,0.3,paste(data1$lj_yh[2],"人"))
+text(0.26,0.3,paste(data1$lj_yh[1],"人"))
+text(-0.28,-0.3,paste(data1$lj_yh[2],"人"))
 box()
 
 
@@ -162,7 +162,7 @@ xx2=barplot(t(active_user),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(active_us
 text(labels=active_user[,1],x=xx2,y=active_user[,1]/2)
 text(labels=active_user[,2],x=xx2,y=active_user[,1]+active_user[,2]-active_user[,2]*0.5)
 text(labels=paste("总:",active_user[,2]+active_user[,1]),x=xx2,y=(active_user[,1]+active_user[,2]),pos=3)
-legend(9,max(active_user)*1.5,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","ios"),pch = 22,pt.cex = 2)
+legend(10.4,max(active_user)*1.7,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","ios"),pch = 22,pt.cex = 2)
 ```
 <br>
 
@@ -245,8 +245,8 @@ lines(cishu_andriod_t,cishu_andriod,type = "b",pch=15,lty=2,col="#5B9BD5",lwd=2,
  #text(cishu_andriod_t,cishu_andriod,labels = cishu_andriod,pos=3,cex = 0.8)
  legend(1.5,max(cishu_iOS,cishu_andriod)-50,c("Andriod","iOS"),pch = c(15,17),col = c("#5B9BD5","#ED7D31"))
  axis(side = 1,at=(0:24)-0.5,labels =0:24,cex.axis=0.73)
- axis(side=2,at=seq(0,max(max(cishu_iOS,cishu_andriod))+30,by=100),labels =seq(0,max(max(cishu_iOS,cishu_andriod))+30,by=100),cex.axis=0.85,las=2)
- abline(h=c(seq(0,max(max(cishu_iOS,cishu_andriod))+30,100)),lty=15,lwd=0.1)
+ axis(side=2,at=seq(0,max(max(cishu_iOS,cishu_andriod))+300,by=200),labels =seq(0,max(max(cishu_iOS,cishu_andriod))+300,by=200),cex.axis=0.85,las=2)
+ abline(h=c(seq(0,max(max(cishu_iOS,cishu_andriod))+300,200)),lty=15,lwd=0.1)
 ```
 
 #<font size=4.5>11.访问时长（按时间时长）</font><br>
