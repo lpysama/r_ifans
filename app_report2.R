@@ -2,6 +2,7 @@ library(RMySQL)
 library(xlsx)
 library(plyr)
 library(reshape2)
+library(lubridate)
 
 
 yesterday=Sys.Date()-1
@@ -131,10 +132,14 @@ v1$lcl_total_7=round((v1$lcl_ios_7*v1$new_user_iOS+v1$new_user_Andriod*v1$lcl_an
 v1$lcl_total_14=round((v1$lcl_ios_14*v1$new_user_iOS+v1$new_user_Andriod*v1$lcl_an_14)/v1$new_user,digit=2)
 
 #保存起来、
-v1.2=rbind(round(c(NA,colMeans(v1[2:22],na.rm = T),mean(as.difftime(v1$user_visit_time,format = "%H:%M:%S")),colMeans(v1[24:32],na.rm = T),na.rm=T),2),v1)
+xx_time=format(strptime(round(seconds_to_period(mean(as.duration(hms(v1$user_visit_time))))),"%MM %SS"),"%H:%M:%S")
+
+#v1.2=rbind(round(c(NA,colMeans(v1[2:22],na.rm = T),mean(as.difftime(v1$user_visit_time,format = "%H:%M:%S")),colMeans(v1[24:32],na.rm = T),na.rm=T),2),v1)
+v1.2=rbind(round(c(NA,colMeans(v1[2:23],na.rm = T),0,colMeans(v1[25:33],na.rm = T),na.rm=T),2),v1)
 v1.2$date=as.character(v1.2$date)
+v1.2[1,]$user_visit_time=xx_time
 v1.2[1,1]="均值"
-v1.2[1,11:13]=NA
+v1.2[1,11:14]=NA
 v2$date=as.character(v2$date)
 v2.2=rbind(round(c(NA,colMeans(v2[2:52],na.rm = T)),2),v2)
 v2.2[1,1]="均值"
