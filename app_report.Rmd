@@ -9,14 +9,16 @@ output:
 ```{r include=FALSE}
 library(RMySQL)
 library(reshape)
+
 yesterday=Sys.Date()-1
 iOS.id='984000de8c5c89df24f7d155'
 Andriod.id='8ea000eac15c89dfacd8d155'
 #conn <- dbConnect(MySQL(), dbname = "test", username="root", #password="1234",host="localhost",port=3306)
 conn <- dbConnect(MySQL(), dbname = "test", username="ifensi_com", password="fans_v2",host="10.0.5.13",port=3306)
 dbSendQuery(conn,'SET NAMES gbk')
-ss0 = sprintf("SELECT * FROM app_ranking where date>\"%s\" ",as.Date(yesterday-7))
-datax0= dbGetQuery(conn,ss0)
+
+ss2=sprintf("SELECT from_unixtime(date/1000,'%%Y-%%m-%%d') AS 'DATE',`name` ,min(pm) from iso_rank where from_unixtime(date/1000,'%%Y-%%m-%%d')>'%s' GROUP BY from_unixtime(date/1000,'%%Y-%%m-%%d'),`name` ",as.Date(yesterday-7))
+data_rank=dbGetQuery(conn,ss2)
 
 
 ss = sprintf("SELECT * FROM umeng_app_zts where date>\"%s\" and (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-7))
@@ -60,11 +62,7 @@ datax10$name=''
 datax10[which(datax10$app_id==iOS.id),]$name='iOS'
 datax10[which(datax10$app_id==Andriod.id),]$name='Andriod'
 #
-ss11=sprintf("SELECT * FROM umeng_app_lcyh where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
-datax11=dbGetQuery(conn,ss11)
-datax11$name=''
-datax11[which(datax11$app_id==iOS.id),]$name='iOS'
-datax11[which(datax11$app_id==Andriod.id),]$name='Andriod'
+
 #13
 ss13=sprintf("SELECT * FROM umeng_app_lcl where date>\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday-30))
 datax13=dbGetQuery(conn,ss13)
@@ -79,8 +77,56 @@ data1=datax[which(datax$date==yesterday),]
 
 xxx=melt(datax,id=(c('date','name')))
 datax=cast(xxx,date~variable+name)
+data2=data_rank[which(data_rank$DATE==yesterday),]
+
+
 
 ```
+基本情况<br>
+1.至昨日总累计用户 ：`r  data1$lj_yh[2]+data1$lj_yh[1]`人。<br>
+2.昨日新增用户 `r  sum(data1$xz_yh)`人、日活跃用户 `r sum(data1$hy_yh)`。<br>
+3.IOS中国娱乐榜畅销排名为`r data2[which(data2$name=="娱乐(畅销)"),3]` 名、下载排名为`r data2[which(data2$name=="娱乐(免费)"),3]`名。<br>
+
+
+#<font size=4.5>1.近7日iOS平台中国娱乐分类内下载排名(无排名则不上榜、无数据)</font><br>
+```{r,echo=FALSE}
+datax01=data_rank[which(data_rank$name=='娱乐(免费)'),][1:7,]
+plot(1:7,datax01$`min(pm)`,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax01$`min(pm)`,na.rm = T)%/%100*100+100,min(datax01$`min(pm)`,na.rm = T)%/%100*100-100))
+axis(1,at=1:7,labels = c(format(as.Date(datax01$DATE), "%m/%d")))
+axis(2,at=seq(max(datax01$`min(pm)`,na.rm = T)%/%100*100+100,min(datax01$`min(pm)`,na.rm = T)%/%100*100,-100),las=2)
+text(1:7,datax01$`min(pm)`,datax01$`min(pm)`,pos = 3)
+```
+<br>
+
+#<font size=4.5>2.近7日iOS平台中国娱乐分类内畅销排名(无排名则不上榜、无数据)</font><br>
+```{r,echo=FALSE}
+datax01=data_rank[which(data_rank$name=='娱乐(畅销)'),][1:7,]
+plot(1:7,datax01$`min(pm)`,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax01$`min(pm)`,na.rm = T)%/%100*100+100,min(datax01$`min(pm)`,na.rm = T)%/%100*100-100))
+axis(1,at=1:7,labels = c(format(as.Date(datax01$DATE), "%m/%d")))
+axis(2,at=seq(max(datax01$`min(pm)`,na.rm = T)%/%100*100+100,min(datax01$`min(pm)`,na.rm = T)%/%100*100,-50),las=2)
+text(1:7,datax01$`min(pm)`,datax01$`min(pm)`,pos = 3)
+```
+
+#<font size=4.5>3.最近七日新增用户（Andriod与iOS平台）</font><br>
+```{r,echo=FALSE}
+new_user=data.frame(as.numeric(as.character(datax$xz_yh_Andriod)),as.numeric(as.character(datax$xz_yh_iOS)),row.names = c(format(as.Date(datax$date), "%m/%d")))
+xx=barplot(t(new_user),beside = T,col = c("#5B9BD5","#ED7D31"),legend.text = c("Andriod","iOS"),ylim = c(0,max(new_user)*1.5),xlab = "日期",ylab = "人数")
+text(labels=new_user[,1],x=xx[1,],y=new_user[,1],pos = 3)
+text(labels=new_user[,2],x=xx[2,],y=new_user[,2],pos = 3)
+```
+<br>
+
+#<font size=4.5>4.最近七日活跃用户</font><br>
+```{r, echo=FALSE}
+active_user=data.frame(as.numeric(as.character(datax$hy_yh_Andriod)),as.numeric(as.character(datax$hy_yh_iOS)),row.names = c(format(as.Date(datax$date), "%m/%d")))
+
+xx2=barplot(t(active_user),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(active_user)*1.7),xlab = "日期",ylab = "人数",space = 1,cex.axis=0.8)
+text(labels=active_user[,1],x=xx2,y=active_user[,1]/2)
+text(labels=active_user[,2],x=xx2,y=active_user[,1]+active_user[,2]-active_user[,2]*0.5)
+text(labels=paste("总:",active_user[,2]+active_user[,1]),x=xx2,y=(active_user[,1]+active_user[,2]),pos=3)
+legend(10.4,max(active_user)*1.7,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","ios"),pch = 22,pt.cex = 2)
+```
+<br>
 #<font size=4.5>1.app积累用户的各平台人数与占比</font>
 
 <font size=2.5>至昨日总累计用户 ：<font color="red">`r  data1$lj_yh[2]+data1$lj_yh[1]`</font>人<br>
@@ -100,28 +146,21 @@ box()
 ```
 <br>
 
-#<font size=4.5>2.近7日iOS平台中国娱乐分类内下载排名(无排名则不上榜、无数据)</font><br>
-```{r,echo=FALSE}
-datax01=datax0[which(datax0$app=='粉丝焦点'),]
-plot(1:7,datax01$rank,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax01$rank,na.rm = T)%/%100*100+100,min(datax01$rank,na.rm = T)%/%100*100-100))
-axis(1,at=1:7,labels = c(format(as.Date(datax01$date), "%m/%d")))
-axis(2,at=seq(max(datax01$rank,na.rm = T)%/%100*100+100,min(datax01$rank,na.rm = T)%/%100*100,-100),las=2)
-text(1:7,datax01$rank,datax01$rank,pos = 3)
-```
-<br>
 
-<font size=4.5>近7日iOS平台中国娱乐分类内畅销排名(无排名则不上榜、无数据)</font><br>
+
+#2<font size=4.5>近7日iOS平台中国娱乐分类内畅销排名(无排名则不上榜、无数据)</font><br>
 ```{r,echo=FALSE}
-datax02=datax0[which(datax0$app=='粉丝网畅销'),]
-plot(1:7,datax02$rank,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax02$rank,na.rm = T)%/%10*10+20,min(datax02$rank,na.rm = T)%/%10*10-20))
-axis(1,at=1:7,labels = c(format(as.Date(datax02$date), "%m/%d")))
-axis(2,at=seq(max(datax02$rank,na.rm = T)%/%10*10+20,min(datax02$rank,na.rm = T)%/%10*10-20,-50),las=2)
-text(1:7,datax02$rank,datax02$rank,pos = 3)
+datax01=data_rank[which(data_rank$name=='娱乐(畅销)'),][1:7,]
+plot(1:7,datax01$`min(pm)`,type = "b",lty=2,pch=20,axes = F,xlab = "日期",ylab = "排名",col="#5B9BD5",ylim = c(max(datax01$`min(pm)`,na.rm = T)%/%100*100+100,min(datax01$`min(pm)`,na.rm = T)%/%100*100-100))
+axis(1,at=1:7,labels = c(format(as.Date(datax01$DATE), "%m/%d")))
+axis(2,at=seq(max(datax01$`min(pm)`,na.rm = T)%/%100*100+100,min(datax01$`min(pm)`,na.rm = T)%/%100*100,-50),las=2)
+text(1:7,datax01$`min(pm)`,datax01$`min(pm)`,pos = 3)
 ```
 <br><font size=3.5>畅销排在粉丝网APP前面的列表（或前30名）：</font><br>
 ```{r,echo=FALSE}
 print(datax2.4[,c(1,2)])
 ```
+
 
 
 
@@ -284,28 +323,13 @@ text(labels=paste("总:",datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[w
 
 #<font size=4.5>13.iOS-15天活跃用户成分</font><br>
 ```{r echo=FALSE}
-Andriod_15=datax11[which(datax11$name=="Andriod"),][4:18]
-iOS_15=datax11[which(datax11$name=="iOS"),][4:18]
-xx11=barplot(t(t(iOS_15)),col = "#5B9BD5",xlim = c(-60,max(iOS_15)*1.2),xlab = "人数",horiz = T,axisnames = F)
-axis(2,xx11,labels = paste("活跃",1:15,"天用户",sep = ""),las=2,cex.axis=0.7,pos=-1)
-text(iOS_15,xx11,labels = iOS_15,pos = 4)
-total=sum(iOS_15)
-rate=round(sum(iOS_15)/data1[which(data1$name=="iOS"),]$lj_yh,digits = 4)*100
-
-text(max(iOS_15)*0.7,15,labels = paste("15天内活跃用户:",total,"\n","15活跃用户占总安装人数比例 :",rate,"%",sep=''),col='red',cex=1.4)
 
 
 ```
 
 #<font size=4.5>14.Andriod-15天活跃用户成分</font><br>
 ```{r echo=FALSE}
-xx12=barplot(t(t(Andriod_15)),col = "#5B9BD5",xlim = c(-150,max(Andriod_15)*1.4),xlab = "人数",horiz = T,axisnames = F)
-axis(2,xx12,labels = paste("活跃",1:15,"天用户",sep = ""),las=2,cex.axis=0.7,pos=-1)
-text(Andriod_15,xx11,labels = Andriod_15,pos = 4)
-total2=sum(Andriod_15)
-rate2=round(sum(Andriod_15)/data1[which(data1$name=="Andriod"),]$lj_yh,digits = 4)*100
 
-text(max(Andriod_15)*0.65,15,labels = paste("15天内活跃用户:",total2,"\n","15活跃用户占总安装人数比例 :",rate2,"%",sep=''),col='red',cex=1.4)
 ```
 
 #<font size=4.5>15.次日留存</font><br>
