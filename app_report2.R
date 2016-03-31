@@ -106,7 +106,7 @@ v2=rbind(v2,old_data2)
 #v3
 
 
-
+#
 
 
 #留存率写入
@@ -147,11 +147,48 @@ v2.2[1,1]="均值"
 addDataFrame(v1.2, getSheets(xx)[[1]], startRow=3, startColumn=1,col.names = F,row.names = F)
 addDataFrame(v2.2, getSheets(xx)[[2]], startRow=3, startColumn=1,col.names = F,row.names = F)
 
-file.remove(file.name) #删除老文件
+ #删除老文件
 
+
+
+
+#写入访问板块分析
+conn <- dbConnect(MySQL(), dbname = "test", username="ifensi_com", password="fans_v2",host="10.0.5.13",port=3306)
+dbSendQuery(conn,'SET NAMES gbk')
+ssx1 = sprintf("SELECT * FROM app_access_map")
+data_mapping= dbGetQuery(conn,ssx1)
+ssx2 = sprintf("SELECT * FROM umeng_app_fwlj where date=\"%s\" ",as.Date(yesterday))
+data_route=dbGetQuery(conn,ssx2)
+dbDisconnect(conn)
+
+
+datauk=merge(data_route,data_mapping,by.y = "page_name",by.x = "p_id",all.x = T)
+
+datauk=datauk[which(datauk$lable!=""),]
+datauk=datauk[which(datauk$lable!=""),]
+datauk$time=as.numeric(unlist(strsplit(datauk$v_times," ",fixed = T))[(1:nrow(datauk))*2-1])
+
+(cc=ddply(datauk,.(lable),summarise,visits2=sum(visits),time2=sum(time*visits)/visits2))
+
+cc$visits2_percent=cc$visits2/sum(cc$visits2)
+cc_lable=ordered(cc$lable,c("直播","粉团","新闻","活动","排行榜","启动页","个人中心","其他"))
+cc$lable=cc_lable
+cc2=cc[order(cc$lable),c(2,4,3)]
+row.names(cc2)=cc[order(cc$lable),1]
+
+old_data3=read.xlsx(file.name,sheetIndex = 3,startRow = 2,encoding = "UTF-8")
+#old_data3=old_data3[-1,]
+
+
+colnames(cc2)=c("点击次数"	,"占比",	"每次点击停留时间（秒）")
+cc2=round(cc2,2)
+write.csv(t(cc2),"C:\\Users\\Administrator\\Desktop\\cc.csv",fileEncoding="GBK")
+ls3=data.frame(as.character(yesterday),t(as.vector(t(as.matrix(cc2)))))
+names(ls3)=names(old_data3)
+v3=rbind(ls3,old_data3)
+
+addDataFrame(v3, getSheets(xx)[[3]], startRow=3,startColumn=1,col.names = F,row.names = F)
+file.remove(file.name)
 saveWorkbook(xx, file.name2) 
-saveWorkbook(xx, paste0("C:\\Users\\Administrator\\Desktop\\","app报告",as.character(yesterday),".xlsx") )
-
-
-
+saveWorkbook(xx, paste0("C:\\Users\\Administrator\\Desktop\\","粉丝网app报告",as.character(yesterday),".xlsx") )
 

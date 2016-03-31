@@ -1,7 +1,7 @@
 ---
 title: "粉丝网app数据报告"
 author: "数据部"
-date: '`r  Sys.Date()-3`'
+date: '`r  Sys.Date()-1`'
 output: 
   html_document: 
     self_contained: no
@@ -56,11 +56,11 @@ datax9$name=''
 datax9[which(datax9$app_id==iOS.id),]$name='iOS'
 datax9[which(datax9$app_id==Andriod.id),]$name='Andriod'
 #
-ss10=sprintf("SELECT * FROM umeng_app_r_sypl where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
-datax10=dbGetQuery(conn,ss10)
-datax10$name=''
-datax10[which(datax10$app_id==iOS.id),]$name='iOS'
-datax10[which(datax10$app_id==Andriod.id),]$name='Andriod'
+#ss10=sprintf("SELECT * FROM umeng_app_r_sypl where date=\"%s\" and  (app_id='984000de8c5c89df24f7d155' or app_id='8ea000eac15c89dfacd8d155')",as.Date(yesterday))
+#datax10=dbGetQuery(conn,ss10)
+#datax10$name=''
+#datax10[which(datax10$app_id==iOS.id),]$name='iOS'
+#datax10[which(datax10$app_id==Andriod.id),]$name='Andriod'
 #
 
 #13
@@ -82,11 +82,20 @@ data2=data_rank[which(data_rank$DATE==yesterday),]
 
 
 ```
-基本情况<br>
+<font size=3><B>基本情况</B><br></font>
 1.至昨日总累计用户 ：`r  data1$lj_yh[2]+data1$lj_yh[1]`人。<br>
 2.昨日新增用户 `r  sum(data1$xz_yh)`人、日活跃用户 `r sum(data1$hy_yh)`人。<br>
 3.IOS中国娱乐榜畅销排名为`r data2[which(data2$name=="娱乐(畅销)"),3]` 名、下载排名为`r data2[which(data2$name=="娱乐(免费)"),3]`名。<br>
 
+分析：<br>
+
+
+<font size=3><B>昨日app直播浏览前三名：</B></font><br>
+
+<font size=3><B>app各大板块的浏览点击信息：</B></font><br>
+
+
+<font size=2><B>详细情况请看附件EXCEL表格</B><br></font>
 
 #<font size=4.5>1.近7日iOS平台中国娱乐分类内下载排名(无排名则不上榜、无数据)</font><br>
 ```{r,echo=FALSE}
@@ -290,17 +299,17 @@ axis(side = 1,at=1:8,labels =chichang_iOS_t ,cex.axis=0.9)
 
 #<font size=4.5>12.日启动次数分布</font><br>
 ```{r echo=FALSE}
-xx10=barplot(t(data.frame(datax10[which(datax10$name=="Andriod"),]$yh_s,datax10[which(datax10$name=="iOS"),]$yh_s,row.names = datax10$key_name[1:6])),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(datax10$yh_s)*1.5),ylab = "人数",xlab = "次数",cex.names = 0.9,space = 1)
+#xx10=barplot(t(data.frame(datax10[which(datax10$name=="Andriod"),]$yh_s,datax10[which(datax10$name=="iOS"),]$yh_s,row.names = datax10$key_name[1:6])),col = c("#5B9BD5","#ED7D31"),ylim = c(0,max(datax10$yh_s)*1.5),ylab = "人数",xlab = "次数",cex.names = 0.9,space = 1)
  
-legend(8,max(datax10$yh_s)*1.4,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","iOS"),pch = 22,pt.cex = 2)
-label1=datax10[which(datax10$name=="Andriod"),]$yh_s
-label1[label1==0]=""
-text(xx10,datax10[which(datax10$name=="Andriod"),]$yh_s/2,labels =label1,cex = 0.8)
-label2=datax10[which(datax10$name=="iOS"),]$yh_s
-label2[label2==0]=""
-text(xx10,datax10[which(datax10$name=="iOS"),]$yh_s/2+datax10[which(datax10$name=="Andriod"),]$yh_s,labels = label2,cex = 0.8)
+#legend(8,max(datax10$yh_s)*1.4,pt.bg=c("#5B9BD5","#ED7D31"),c("andriod","iOS"),pch = 22,pt.cex = 2)
+#label1=datax10[which(datax10$name=="Andriod"),]$yh_s
+#label1[label1==0]=""
+#text(xx10,datax10[which(datax10$name=="Andriod"),]$yh_s/2,labels =label1,cex = 0.8)
+#label2=datax10[which(datax10$name=="iOS"),]$yh_s
+#label2[label2==0]=""
+#text(xx10,datax10[which(datax10$name=="iOS"),]$yh_s/2+datax10[which(datax10$name=="Andriod"),]$yh_s,labels = label2,cex = 0.8)
 
-text(labels=paste("总:",datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[which(datax10$name=="iOS"),]$yh_s),x=xx2,y=(datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[which(datax10$name=="iOS"),]$yh_s),pos=3,cex = 0.9)
+#text(labels=paste("总:",datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[which(datax10$name=="iOS"),]$yh_s),x=xx2,y=(datax10[which(datax10$name=="Andriod"),]$yh_s+datax10[which(datax10$name=="iOS"),]$yh_s),pos=3,cex = 0.9)
 ```
 
 #<font size=4.5>13.iOS-15天活跃用户成分</font><br>
